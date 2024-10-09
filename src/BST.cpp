@@ -1,33 +1,35 @@
 #include "BST.h"
 #include <iostream>
+#define print(x) std::cout << x << std::endl
 
 BST::BST(int keys[], int size) {
-	if (size != 0) {
 		this->left = nullptr;
 		this->right = nullptr;
+		this->value = 0;
+
+	if (size != 0) {
 		this->value = keys[0];
 
 		for (int i = 1; i < size; ++i) {
 			this->insertKey(keys[i]);
 		}
 	}
-	else {
-		// ?
-	}
+
+	print("BST with size " << size << " is created.");
 }
+
+BST::BST(int value) : value(value), left(nullptr), right(nullptr) {}
 
 BST::~BST() {
 }
 
 void BST::insertKey(int key) {
-	int arr[] = {key};
-
 	if (key <= this->value) { // assumed there won't be any identical keys
 		if (this->left) {
 			this->left->insertKey(key);
 		}
 		else {
-			this->left = new BST(arr, 1);
+			this->left = new BST(key);
 		}
 	}
 	else {
@@ -35,7 +37,7 @@ void BST::insertKey(int key) {
 			this->right->insertKey(key);
 		}
 		else {
-			this->right = new BST(arr, 1);
+			this->right = new BST(key);
 		}
 	}
 }

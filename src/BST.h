@@ -8,6 +8,7 @@ private:
 	BST* right;
 public:
 	BST(int keys[], int size);
+	BST(int value);
 	~BST();
 	void insertKey(int key);
 	void deleteKey(int key);
