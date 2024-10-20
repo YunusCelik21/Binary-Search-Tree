@@ -20,6 +20,7 @@ BST::BST(int keys[], int size) { // what if keys is empty?
 BST::BST(int value) : value(value), left(nullptr), right(nullptr) {}
 
 BST::~BST() {
+
 }
 
 void BST::insertKey(int key) {
@@ -32,6 +33,28 @@ void BST::insertKey(int key) {
 }
 
 void BST::deleteKey(int key) {
+	if (!this) {
+		println("Key " << key << " is not deleted. It does not exist!");
+		return;
+	}
+
+	if (this->value < key) {
+		if (this->left->value == key) {
+			
+		}
+		
+		this->left->deleteKey(key);
+	}
+	else if (this->value > key) {
+		if (this->right->value == key) {
+
+		}
+
+		this->right->deleteKey(key);
+	}
+	else {
+
+	}
 
 }
 
@@ -39,19 +62,26 @@ void BST::displayInorder() {
 	std::string result = "";
 	if (this) {
 		this->left->inorder(result);
-		result += this->value + ", ";
+		result += std::to_string(this->value) + ", ";
+		this->right->inorder(result);
+	}
+
+	
+	println("Result: " << result.substr(0, result.size() - 2));
+}
+
+void BST::inorder(std::string& result) {
+	if (this) {
+		this->left->inorder(result);
+		result += std::to_string(this->value) + ", ";
 		this->right->inorder(result);
 	}
 }
 
-void BST::inorder(std::string& string) {
-
-}
-
 bool BST::insert(int key) {
-	if (key < this->value) { // assumed there won't be any identical keys
+	if (key < this->value) { 
 		if (this->left) {
-			this->left->insertKey(key);
+			this->left->insert(key);
 		}
 		else {
 			this->left = new BST(key);
@@ -60,7 +90,7 @@ bool BST::insert(int key) {
 	}
 	else if (key > this->value) {
 		if (this->right) {
-			this->right->insertKey(key);
+			this->right->insert(key);
 		}
 		else {
 			this->right = new BST(key);
@@ -73,6 +103,7 @@ bool BST::insert(int key) {
 }
 
 void BST::findFullBTLevel() {
+
 }
 
 void BST::lowestCommonAncestor(int A, int B) {
@@ -89,8 +120,10 @@ void BST::pathFromAtoB(int A, int B) {
 }
 
 int main() {
-	int a[] = { 1,2,3 };
-	BST obj(a, 3);
-
+	int a[] = { 10, 7, 20, 5, 9, 15, 21, 2, 12, 18, 24, 3, 19 };
+	BST obj(a, 13);
+	obj.displayInorder();
+	obj.insertKey(8);
+	obj.insertKey(7);
 
 }
