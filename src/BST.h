@@ -1,11 +1,14 @@
 #ifndef BST_H
 #define BST_H
+#include <iostream>
 
 class BST {
 private:
 	int value;
 	BST* left;
 	BST* right;
+	void inorder(std::string& string);
+	bool insert(int key);
 public:
 	BST(int keys[], int size);
 	BST(int value);
