@@ -239,7 +239,19 @@ void BST::findFullBTLevel() {
 }
 
 void BST::lowestCommonAncestor(int A, int B) {
+	int* rootToA = rootToKey(A);
+	int* rootToB = rootToKey(B);
+	int min = std::min(depth(A), depth(B));
+	std::string commonAncestor = "";
 
+	for (int i = 0; i < min && rootToA[i] == rootToB[i]; ++i) { // while they have the same path from the root, continue
+		commonAncestor = std::to_string(rootToA[i]);
+	}
+
+	println("Lowest common ancestor of " << A << " and " << B << " is: " << commonAncestor);
+
+	delete[] rootToA;
+	delete[] rootToB;
 }
 
 void BST::maximumSumPath() {
@@ -325,7 +337,37 @@ int BST::depth(int key) {
 }
 
 void BST::pathFromAtoB(int A, int B) {
-	
+	int* rootToA = rootToKey(A);
+	int* rootToB = rootToKey(B);
+
+	if (isEmpty() || !rootToA || !rootToB) { // if there is no path
+		println("Path from " << A << " to " << B << " is:");
+		return;
+	}
+
+
+} 
+
+int* BST::rootToKey(int key) { // does not delete the path, caller should do it
+	int length = depth(key);
+	if (length == 0) {
+		return nullptr;
+	}
+
+	int* path = new int[length];
+	BST* pointer = this;
+
+	for (int i = 0; i < length; ++i) {
+		path[i] = pointer->value;
+		
+		if (key < pointer->value) {
+			pointer = pointer->left;
+		}
+		else if (key > pointer->value) {
+			pointer = pointer->right;
+		}
+	}
+	return path;
 }
 
 bool BST::isEmpty() {
@@ -368,4 +410,6 @@ int main() {
 	obj.inorder(s);
 	println(s);
 	obj.maximumWidth();
+	
+	
 }
