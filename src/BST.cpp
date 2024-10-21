@@ -32,52 +32,6 @@ void BST::insertKey(int key) {
 	}
 }
 
-void BST::deleteKey(int key) {
-	if (!this) {
-		println("Key " << key << " is not deleted. It does not exist!");
-		return;
-	}
-
-	if (this->value < key) {
-		if (this->left->value == key) {
-			
-		}
-		
-		this->left->deleteKey(key);
-	}
-	else if (this->value > key) {
-		if (this->right->value == key) {
-
-		}
-
-		this->right->deleteKey(key);
-	}
-	else {
-
-	}
-
-}
-
-void BST::displayInorder() {
-	std::string result = "";
-	if (this) {
-		this->left->inorder(result);
-		result += std::to_string(this->value) + ", ";
-		this->right->inorder(result);
-	}
-
-	
-	println("Result: " << result.substr(0, result.size() - 2));
-}
-
-void BST::inorder(std::string& result) {
-	if (this) {
-		this->left->inorder(result);
-		result += std::to_string(this->value) + ", ";
-		this->right->inorder(result);
-	}
-}
-
 bool BST::insert(int key) {
 	if (key < this->value) { 
 		if (this->left) {
@@ -102,6 +56,91 @@ bool BST::insert(int key) {
 	}
 }
 
+void BST::deleteKey(int key) {
+	if (!this) {
+		println("Key " << key << " is not deleted. It does not exist!");
+		return;
+	}
+
+	if (this->value < key) {
+		if (this->left->value == key) {
+			deletePointedNode(this->left); 
+			println("Key " << key << " is deleted.");
+			return;
+		}
+		
+		this->left->deleteKey(key);
+	}
+	else if (this->value > key) {
+		if (this->right->value == key) {
+			deletePointedNode(this->right);
+			println("Key " << key << " is deleted.");
+			return;
+		}
+
+		this->right->deleteKey(key);
+	}
+	else {
+		deletePointedNode(this);
+		println("Key " << key << " is deleted.");
+	}
+
+}
+
+void deletePointedNode(BST*& node) {
+	if (!node->right && !node->left) {
+		delete node;
+		node = nullptr;
+	}
+	else if (node->right && !node->left) {
+		BST* del = node;
+		node = node->right;
+		del->right = nullptr;
+		delete del;
+	}
+	else if (!node->right && node->left) {
+		BST* del = this->right;
+		del = del->left;
+		del->left = nullptr;
+		delete del;
+	}
+	else {
+		int successor = node->inorderSuccessor();
+		node->value = successor;
+		node->right->deleteKey(successor);
+	}
+}
+
+int BST::inorderSuccessor() {
+	if (!this->right) {
+		return this->value;
+	}
+
+	std::string s = "";
+	inorder(s);
+	s = s.substr(0, 1); // first value is the inorder successsor
+	return std::stoi(s); // parse to int and return
+}
+
+void BST::displayInorder() {
+	std::string result = "";
+	if (this) {
+		this->left->inorder(result);
+		result += std::to_string(this->value) + ", ";
+		this->right->inorder(result);
+	}
+	
+	println("Result: " << result.substr(0, result.size() - 2));
+}
+
+void BST::inorder(std::string& result) {
+	if (this) {
+		this->left->inorder(result);
+		result += std::to_string(this->value) + ", ";
+		this->right->inorder(result);
+	}
+}
+
 void BST::findFullBTLevel() {
 
 }
@@ -119,11 +158,12 @@ void BST::pathFromAtoB(int A, int B) {
 	
 }
 
+
 int main() {
 	int a[] = { 10, 7, 20, 5, 9, 15, 21, 2, 12, 18, 24, 3, 19 };
-	BST obj(a, 13);
-	obj.displayInorder();
-	obj.insertKey(8);
-	obj.insertKey(7);
+	
 
+	BST obj(a, 13);
+	obj.pathFromAtoB(31,31);
+	obj.displayInorder();
 }
