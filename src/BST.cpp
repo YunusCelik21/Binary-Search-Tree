@@ -255,6 +255,12 @@ void BST::lowestCommonAncestor(int A, int B) {
 }
 
 void BST::maximumSumPath() {
+	std::string res = "";
+
+}
+
+void BST::maximumSumPathNoMessage(std::string& path) {
+
 }
 
 void BST::maximumWidth() {
@@ -318,8 +324,8 @@ void BST::maximumWidth() {
 }
 
 int BST::depth(int key) {
-	if (!this || (key < this->value && !this->left) || (key > this->value && !this->right)) { // if key does not exist
-		return 0;
+	if (!this || (key < this->value && !this->left) || (key > this->value && !this->right)) { // if key does not exist, depth is negative
+		return INT_MIN;
 	}
 
 	int depth = 0;
@@ -339,18 +345,43 @@ int BST::depth(int key) {
 void BST::pathFromAtoB(int A, int B) {
 	int* rootToA = rootToKey(A);
 	int* rootToB = rootToKey(B);
+	int min = std::min(depth(A), depth(B));
 
-	if (isEmpty() || !rootToA || !rootToB) { // if there is no path
+	if (isEmpty() || min < 0) { // if there is no path
 		println("Path from " << A << " to " << B << " is:");
 		return;
 	}
 
+	int commonAncestor = INT_MAX;
 
+	for (int i = 0; i < min && rootToA[i] == rootToB[i]; ++i) { // while they have the same path from the root, continue
+		commonAncestor = rootToA[i];
+	}
+
+	std::string res = "";
+
+	// path from A to common ancestor
+	int i;
+	for (i = depth(A) - 1; i >= 0 && rootToA[i] != commonAncestor; --i) {
+		res += std::to_string(rootToA[i]) + ", ";
+	}
+
+	// path from common ancestor to B
+	for (i; i < depth(B); ++i) {
+		res += std::to_string(rootToB[i]) + ", ";
+	}
+
+	res = res.substr(0, res.size() - 2);
+
+	println("Path from " << A << " to " << B << " is: " << res);
+
+	delete[] rootToA;
+	delete[] rootToB;
 } 
 
 int* BST::rootToKey(int key) { // does not delete the path, caller should do it
 	int length = depth(key);
-	if (length == 0) {
+	if (length < 0) {
 		return nullptr;
 	}
 
@@ -408,8 +439,6 @@ int main() {
 
 	std::string s = "";
 	obj.inorder(s);
-	println(s);
-	obj.maximumWidth();
-	
-	
+	println(obj.depth(123));
+	obj.pathFromAtoB(2, 31);
 }
