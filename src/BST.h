@@ -8,10 +8,14 @@ private:
 	int value;
 	BST* left;
 	BST* right;
+
+	bool insertKeyNoMessage(int key);
+	bool deleteKeyNoMessage(int key);
 	void inorder(std::string& string);
-	bool insert(int key);
 	int inorderSuccessor();
 	void deleteRoot();
+	bool isEmpty();
+
 public:
 	BST(int keys[], int size);
 	BST(int value);
