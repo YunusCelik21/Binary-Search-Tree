@@ -72,7 +72,7 @@ void BST::deleteKey(int key) {
 }
 
 bool BST::deleteKeyNoMessage(int key) {
-	if (!this || (key < this->value && !this->left) || (key > this->value && !this->right)) {
+	if ((key < this->value && !this->left) || (key > this->value && !this->right)) {
 		return false;
 	}
 
@@ -178,13 +178,15 @@ void BST::displayInorder() {
 	std::string result = "";
 	inorder(result);
 	
-	println("Result: " << result.substr(0, result.size() - 2));
+	println("Inorder display is: " << result.substr(0, result.size() - 2));
 }
 
 void BST::inorder(std::string& result) {
-	if (this) {
+	if (this->left) {
 		this->left->inorder(result);
+	}
 		result += std::to_string(this->value) + ", ";
+	if (this->right) {
 		this->right->inorder(result);
 	}
 }
@@ -255,12 +257,51 @@ void BST::lowestCommonAncestor(int A, int B) {
 }
 
 void BST::maximumSumPath() {
+	int size = this->size();
+	int* keys = new int[size];
 	std::string res = "";
+	std::string s = "";
+	inorder(s);
+
+	// fill the keys array
+	for (int i = 0; i < size; ++i) {
+		std::string num = "";
+
+		int j;
+		for (j = 0; j < s.size() && s[j] != ','; ++j) {
+			num += s[j];
+		}
+
+		keys[i] = std::stoi(num);
+		s = s.substr(j + 2, s.size() - (j + 2));
+	}
+
+	int maxSum = INT_MIN;
+	int maxSumLeaf = INT_MIN;
+	for (int i = 0; i < size; ++i) {
+		if (isLeaf(keys[i])) {
+			int sum = pathSum(keys[i]);
+
+			if (sum > maxSum) {
+				maxSum = sum;
+				maxSumLeaf = keys[i];
+			}
+		}
+	}
+
+	println("Maximum sum path is: " << pathFromAtoBNoMessage(this->value, maxSumLeaf));
 
 }
 
-void BST::maximumSumPathNoMessage(std::string& path) {
+int BST::pathSum(int key) {
+	int* path = rootToKey(key);
+	int sum = 0;
 
+	for (int i = 0; i < depth(key); ++i) {
+		sum += path[i];
+	}
+
+	return sum;
 }
 
 void BST::maximumWidth() {
@@ -324,32 +365,39 @@ void BST::maximumWidth() {
 }
 
 int BST::depth(int key) {
-	if (!this || (key < this->value && !this->left) || (key > this->value && !this->right)) { // if key does not exist, depth is negative
+	if ((key < this->value && !this->left) || (key > this->value && !this->right)) { // if key does not exist, depth is negative
 		return INT_MIN;
 	}
 
-	int depth = 0;
 	if (key == this->value) {
 		return 1;
 	}
 
-	if (key < this->value) {
+	if (key < this->value && this->left) {
 		return 1 + this->left->depth(key);
 	}
 
-	if (key > this->value) {
+	if (key > this->value && this->right) {
 		return 1 + this->right->depth(key);
 	}
+
+	return 0;
 }
 
 void BST::pathFromAtoB(int A, int B) {
+	std::string res = pathFromAtoBNoMessage(A, B);
+
+	println("Path from " << A << " to " << B << " is: " << res);
+} 
+
+std::string BST::pathFromAtoBNoMessage(int A, int B) {
 	int* rootToA = rootToKey(A);
 	int* rootToB = rootToKey(B);
 	int min = std::min(depth(A), depth(B));
+	std::string res = "";
 
 	if (isEmpty() || min < 0) { // if there is no path
-		println("Path from " << A << " to " << B << " is:");
-		return;
+		return res;
 	}
 
 	int commonAncestor = INT_MAX;
@@ -357,8 +405,6 @@ void BST::pathFromAtoB(int A, int B) {
 	for (int i = 0; i < min && rootToA[i] == rootToB[i]; ++i) { // while they have the same path from the root, continue
 		commonAncestor = rootToA[i];
 	}
-
-	std::string res = "";
 
 	// path from A to common ancestor
 	int i;
@@ -373,11 +419,11 @@ void BST::pathFromAtoB(int A, int B) {
 
 	res = res.substr(0, res.size() - 2);
 
-	println("Path from " << A << " to " << B << " is: " << res);
-
 	delete[] rootToA;
 	delete[] rootToB;
-} 
+
+	return res;
+}
 
 int* BST::rootToKey(int key) { // does not delete the path, caller should do it
 	int length = depth(key);
@@ -399,6 +445,25 @@ int* BST::rootToKey(int key) { // does not delete the path, caller should do it
 		}
 	}
 	return path;
+}
+
+bool BST::isLeaf(int key) {
+	if (this->value == key) {
+		if (!this->left && !this->right) {
+			return true;
+		}
+		return false;
+	}
+	
+	if (key < this->value && this->left) {
+		return this->left->isLeaf(key);
+	}
+
+	if (key > this->value && this->right) {
+		return this->right->isLeaf(key);
+	}
+	
+	return false;
 }
 
 bool BST::isEmpty() {
@@ -440,5 +505,9 @@ int main() {
 	std::string s = "";
 	obj.inorder(s);
 	println(obj.depth(123));
-	obj.pathFromAtoB(2, 31);
+	obj.pathFromAtoB(2, 24);
+
+	println(obj.pathSum(24));
+	println(obj.pathSum(19));
+	
 }
