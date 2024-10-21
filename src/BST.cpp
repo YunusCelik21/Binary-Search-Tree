@@ -1,7 +1,7 @@
 #include "BST.h"
 #define println(x) std::cout << x << std::endl
 
-BST::BST(int keys[], int size) { // what if keys is empty?
+BST::BST(int keys[], int size) { 
 		this->left = nullptr;
 		this->right = nullptr;
 		this->value = INT_MAX; // tree is empty
@@ -176,11 +176,7 @@ int BST::inorderSuccessor() {
 
 void BST::displayInorder() {
 	std::string result = "";
-	if (this) {
-		this->left->inorder(result);
-		result += std::to_string(this->value) + ", ";
-		this->right->inorder(result);
-	}
+	inorder(result);
 	
 	println("Result: " << result.substr(0, result.size() - 2));
 }
@@ -219,6 +215,8 @@ void BST::findFullBTLevel() {
 			// if any of the nodes doesn't have any of its children, we are in the last full level 
 			if (!arr[i - 1]->left || !arr[i - 1]->right) {
 				println("Full binary tree level is: " << res);
+				delete[] stack;
+				delete[] arr;
 				return;
 			}
 		}
@@ -234,17 +232,96 @@ void BST::findFullBTLevel() {
 			--i;
 		}
 
+		delete[] arr;
 	}	
 	
+	delete[] stack;
 }
 
 void BST::lowestCommonAncestor(int A, int B) {
+
 }
 
 void BST::maximumSumPath() {
 }
 
 void BST::maximumWidth() {
+	if (isEmpty()) {
+		println("Maximum level is: ");
+	}
+
+	int size = this->size();
+	int* width = new int[size + 1]; // width[i] contains the number of nodes at level i
+
+	int* keys = new int[size]; // contains the keys
+
+	std::string s = ""; 
+	inorder(s);
+	
+	// fill the keys array
+	for (int i = 0; i < size; ++i) {
+		std::string num = "";
+		
+		int j;
+		for (j = 0; j < s.size() && s[j] != ','; ++j) {
+			num += s[j];
+		}
+
+		keys[i] = std::stoi(num);
+		s = s.substr(j + 2, s.size() - (j + 2));
+	}
+
+	// initialize the width array
+	for (int i = 0; i < size + 1; ++i) {
+		width[i] = 0;
+	}
+	
+	// fill the width array
+	for (int i = 0; i < size; ++i) { 
+		int level = depth(keys[i]);
+		width[level]++;
+	}
+
+	// find the maximum level
+	int maxLevel = 1;
+	for (int i = 1; i < size + 1; ++i) {
+		if (width[i] > width[maxLevel]) {
+			maxLevel = i;
+		}
+	}
+
+	// list the nodes in the max level
+	std::string maxLevelKeys = "";
+	for (int i = 0; i < size; ++i) {
+		if (depth(keys[i]) == maxLevel) {
+			maxLevelKeys += std::to_string(keys[i]) + ", ";
+		}
+	}
+
+	delete[] width;
+	delete[] keys;
+
+	maxLevelKeys = maxLevelKeys.substr(0, maxLevelKeys.size() - 2);
+	println("Maximum level is: " << maxLevelKeys);
+}
+
+int BST::depth(int key) {
+	if (!this || (key < this->value && !this->left) || (key > this->value && !this->right)) { // if key does not exist
+		return 0;
+	}
+
+	int depth = 0;
+	if (key == this->value) {
+		return 1;
+	}
+
+	if (key < this->value) {
+		return 1 + this->left->depth(key);
+	}
+
+	if (key > this->value) {
+		return 1 + this->right->depth(key);
+	}
 }
 
 void BST::pathFromAtoB(int A, int B) {
@@ -256,11 +333,11 @@ bool BST::isEmpty() {
 }
 
 int BST::size() {
-	int res = 0;
 	if (isEmpty()) {
-		return res;
+		return 0;
 	}
 
+	int res = 0;
 	if (!this->left && !this->right) {
 		return 1;
 	}
@@ -282,4 +359,13 @@ int main() {
 	BST obj(a, 13);
 	obj.displayInorder();
 	obj.findFullBTLevel();
+
+	for (int i = 0; i < 13; ++i) {
+		println(obj.depth(a[i]));
+	}
+
+	std::string s = "";
+	obj.inorder(s);
+	println(s);
+	obj.maximumWidth();
 }
