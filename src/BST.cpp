@@ -194,7 +194,48 @@ void BST::inorder(std::string& result) {
 }
 
 void BST::findFullBTLevel() {
+	if (isEmpty()) {
+		println("Full binary tree level is: 0");
+		return;
+	}
 
+	BST* pointer = this;
+	BST** stack = new BST*[size()];
+	int top = 0;
+	int res = 1;
+
+	stack[top] = pointer;
+	++top;
+
+	while (top != 0) { // while stack is not empty
+		BST** arr = new BST*[top];
+		int i = 0;
+		
+		while (top != 0) {
+			arr[i] = stack[top - 1];
+			++i;
+			--top;
+
+			// if any of the nodes doesn't have any of its children, we are in the last full level 
+			if (!arr[i - 1]->left || !arr[i - 1]->right) {
+				println("Full binary tree level is: " << res);
+				return;
+			}
+		}
+
+		++res; // every node has both its children, continue with the next level
+
+		// push the next level to the stack
+		while (i != 0) {
+			stack[top] = arr[i - 1]->left;
+			++top;
+			stack[top] = arr[i - 1]->right;
+			++top;
+			--i;
+		}
+
+	}	
+	
 }
 
 void BST::lowestCommonAncestor(int A, int B) {
@@ -240,6 +281,5 @@ int main() {
 	
 	BST obj(a, 13);
 	obj.displayInorder();
-	obj.deleteKey(10);
-	obj.displayInorder();
+	obj.findFullBTLevel();
 }
