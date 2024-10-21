@@ -4,7 +4,7 @@
 BST::BST(int keys[], int size) { // what if keys is empty?
 		this->left = nullptr;
 		this->right = nullptr;
-		this->value = 0;
+		this->value = INT_MAX; // tree is empty
 
 	if (size != 0) {
 		this->value = keys[0];
@@ -35,34 +35,34 @@ void BST::insertKey(int key) {
 bool BST::insert(int key) {
 	if (key < this->value) { 
 		if (this->left) {
-			this->left->insert(key);
+			return this->left->insert(key);
 		}
-		else {
-			this->left = new BST(key);
-			return true;
-		}
+
+		this->left = new BST(key);
+		return true;
+		
 	}
 	else if (key > this->value) {
 		if (this->right) {
-			this->right->insert(key);
+			return this->right->insert(key);
 		}
-		else {
-			this->right = new BST(key);
-			return true;
-		}
+
+		this->right = new BST(key);
+		return true;
+		
 	}
-	else {
-		return false;
-	}
+
+	return false;
+	
 }
 
 void BST::deleteKey(int key) {
-	if (!this) {
+	if (!this || (key < this->value && !this->left) || (key > this->value && !this->right)) {
 		println("Key " << key << " is not deleted. It does not exist!");
 		return;
 	}
 
-	if (this->value < key) {
+	if (key < this->value) {
 		if (this->left->value == key) {
 			deletePointedNode(this->left); 
 			println("Key " << key << " is deleted.");
@@ -71,7 +71,7 @@ void BST::deleteKey(int key) {
 		
 		this->left->deleteKey(key);
 	}
-	else if (this->value > key) {
+	else if (key > this->value) {
 		if (this->right->value == key) {
 			deletePointedNode(this->right);
 			println("Key " << key << " is deleted.");
@@ -81,7 +81,7 @@ void BST::deleteKey(int key) {
 		this->right->deleteKey(key);
 	}
 	else {
-		deletePointedNode(this);
+		deleteRoot();
 		println("Key " << key << " is deleted.");
 	}
 
@@ -94,20 +94,57 @@ void deletePointedNode(BST*& node) {
 	}
 	else if (node->right && !node->left) {
 		BST* del = node;
-		node = node->right;
+		node = del->right;
 		del->right = nullptr;
 		delete del;
 	}
 	else if (!node->right && node->left) {
-		BST* del = this->right;
-		del = del->left;
+		BST* del = node;
+		node = del->left;
 		del->left = nullptr;
 		delete del;
 	}
 	else {
 		int successor = node->inorderSuccessor();
+		node->deleteKey(successor);
 		node->value = successor;
-		node->right->deleteKey(successor);
+	}
+}
+
+void BST::deleteRoot() {
+	if (!this->left && !this->right) {
+		this->value = INT_MAX; // tree is empty
+	}
+	else if (!this->left) {
+		BST* del = this->right;
+
+		// root now is the right node
+		this->right = del->right;
+		this->left = del->left;
+		this->value = del->value;
+
+		// delete the right node
+		del->right = nullptr;
+		del->left = nullptr;
+		delete del;
+	}
+	else if (!this->right) {
+		BST* del = this->left;
+
+		// root now is the left node
+		this->right = del->right;
+		this->left = del->left;
+		this->value = del->value;
+
+		// delete the left node
+		del->right = nullptr;
+		del->left = nullptr;
+		delete del;
+	}
+	else {
+		int successor = inorderSuccessor();
+		this->value = successor;
+		this->right->deleteKey(successor);
 	}
 }
 
@@ -117,9 +154,14 @@ int BST::inorderSuccessor() {
 	}
 
 	std::string s = "";
-	inorder(s);
-	s = s.substr(0, 1); // first value is the inorder successsor
-	return std::stoi(s); // parse to int and return
+	this->right->inorder(s);
+
+	std::string res = "";
+	for (int i = 0; i < s.size() && s[i] != ','; ++i) {
+		res += s[i];
+	}
+
+	return std::stoi(res); // stoi = string to int
 }
 
 void BST::displayInorder() {
@@ -142,7 +184,6 @@ void BST::inorder(std::string& result) {
 }
 
 void BST::findFullBTLevel() {
-
 }
 
 void BST::lowestCommonAncestor(int A, int B) {
@@ -163,7 +204,8 @@ int main() {
 	int a[] = { 10, 7, 20, 5, 9, 15, 21, 2, 12, 18, 24, 3, 19 };
 	
 
-	BST obj(a, 13);
-	obj.pathFromAtoB(31,31);
+	BST obj(a, 1);
+	obj.displayInorder();
+	obj.deleteKey(10);
 	obj.displayInorder();
 }

@@ -11,6 +11,7 @@ private:
 	void inorder(std::string& string);
 	bool insert(int key);
 	int inorderSuccessor();
+	void deleteRoot();
 public:
 	BST(int keys[], int size);
 	BST(int value);
