@@ -15,6 +15,7 @@ private:
 	int inorderSuccessor();
 	void deleteRoot();
 	bool isEmpty();
+	int size();
 
 public:
 	BST(int keys[], int size);

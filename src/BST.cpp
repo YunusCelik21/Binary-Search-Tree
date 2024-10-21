@@ -20,7 +20,13 @@ BST::BST(int keys[], int size) { // what if keys is empty?
 BST::BST(int value) : value(value), left(nullptr), right(nullptr) {}
 
 BST::~BST() {
+	if (this->left) {
+		delete this->left;
+	}
 
+	if (this->right) {
+		delete this->right;
+	}
 }
 
 void BST::insertKey(int key) {
@@ -208,12 +214,32 @@ bool BST::isEmpty() {
 	return (!this->right && !this->left && (this->value == INT_MAX));
 }
 
+int BST::size() {
+	int res = 0;
+	if (isEmpty()) {
+		return res;
+	}
+
+	if (!this->left && !this->right) {
+		return 1;
+	}
+
+	if (this->left) {
+		res += this->left->size();
+	}
+
+	if (this->right) {
+		res += this->right->size();
+	}
+
+	return res + 1;
+}
+
 int main() {
 	int a[] = { 10, 7, 20, 5, 9, 15, 21, 2, 12, 18, 24, 3, 19 };
 	
-
 	BST obj(a, 13);
 	obj.displayInorder();
-	obj.deleteKey(20);
+	obj.deleteKey(10);
 	obj.displayInorder();
 }
