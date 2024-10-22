@@ -4,7 +4,7 @@
 BST::BST(int keys[], int size) { 
 		this->left = nullptr;
 		this->right = nullptr;
-		this->value = INT_MAX; // tree is empty
+		this->value = INT16_MAX; // tree is empty
 
 	if (size != 0) {
 		this->value = keys[0];
@@ -39,6 +39,11 @@ void BST::insertKey(int key) {
 }
 
 bool BST::insertKeyNoMessage(int key) {
+	if (isEmpty()) {
+		this->value = key;
+		return true;
+	}
+
 	if (key < this->value) { 
 		if (this->left) {
 			return this->left->insertKeyNoMessage(key);
@@ -96,6 +101,8 @@ bool BST::deleteKeyNoMessage(int key) {
 		deleteRoot();
 		return true;
 	}
+
+	return false;
 }
 
 void deletePointedNode(BST*& node) {
@@ -122,7 +129,7 @@ void deletePointedNode(BST*& node) {
 
 void BST::deleteRoot() { // deleting root is a special case
 	if (!this->left && !this->right) {
-		this->value = INT_MAX; // tree is empty
+		this->value = INT16_MIN; // tree is empty now
 	}
 	else if (!this->left) {
 		BST* del = this->right;
@@ -191,56 +198,32 @@ void BST::inorder(std::string& result) {
 	}
 }
 
-void BST::findFullBTLevel() {
-	if (isEmpty()) {
-		println("Full binary tree level is: 0");
-		return;
+void BST::findFullBTLevel() { // CANNOT USE ARRAY
+	int level = 0;
+	while (isLevelFull(level)) {
+		++level;
 	}
 
-	BST* pointer = this;
-	BST** stack = new BST*[size()];
-	int top = 0;
-	int res = 1;
-
-	stack[top] = pointer;
-	++top;
-
-	while (top != 0) { // while stack is not empty
-		BST** arr = new BST*[top];
-		int i = 0;
-		
-		while (top != 0) {
-			arr[i] = stack[top - 1];
-			++i;
-			--top;
-
-			// if any of the nodes doesn't have any of its children, we are in the last full level 
-			if (!arr[i - 1]->left || !arr[i - 1]->right) {
-				println("Full binary tree level is: " << res);
-				delete[] stack;
-				delete[] arr;
-				return;
-			}
-		}
-
-		++res; // every node has both its children, continue with the next level
-
-		// push the next level to the stack
-		while (i != 0) {
-			stack[top] = arr[i - 1]->left;
-			++top;
-			stack[top] = arr[i - 1]->right;
-			++top;
-			--i;
-		}
-
-		delete[] arr;
-	}	
-	
-	delete[] stack;
+	println("Full binary tree level is: " << level - 1);
 }
 
-void BST::lowestCommonAncestor(int A, int B) {
+bool BST::isLevelFull(int level) {
+	if (level == 0) {
+		return true;
+	}
+
+	if (level == 1) {
+		return !isEmpty();
+	}
+
+	if (level == 2) {
+		return this->left && this->right;
+	}
+
+	return (this->left && this->right) && this->left->isLevelFull(level - 1) && this->right->isLevelFull(level - 1);
+}
+
+void BST::lowestCommonAncestor(int A, int B) { // STRING
 	int* rootToA = rootToKey(A);
 	int* rootToB = rootToKey(B);
 	int min = std::min(depth(A), depth(B));
@@ -256,7 +239,7 @@ void BST::lowestCommonAncestor(int A, int B) {
 	delete[] rootToB;
 }
 
-void BST::maximumSumPath() {
+void BST::maximumSumPath() { // ARRAY, STRING
 	int size = this->size();
 	int* keys = new int[size];
 	std::string res = "";
@@ -276,8 +259,8 @@ void BST::maximumSumPath() {
 		s = s.substr(j + 2, s.size() - (j + 2));
 	}
 
-	int maxSum = INT_MIN;
-	int maxSumLeaf = INT_MIN;
+	int maxSum = INT16_MIN;
+	int maxSumLeaf = INT16_MIN;
 	for (int i = 0; i < size; ++i) {
 		if (isLeaf(keys[i])) {
 			int sum = pathSum(keys[i]);
@@ -289,11 +272,12 @@ void BST::maximumSumPath() {
 		}
 	}
 
+	delete[] keys;
 	println("Maximum sum path is: " << pathFromAtoBNoMessage(this->value, maxSumLeaf));
 
 }
 
-int BST::pathSum(int key) {
+int BST::pathSum(int key) { 
 	int* path = rootToKey(key);
 	int sum = 0;
 
@@ -301,10 +285,11 @@ int BST::pathSum(int key) {
 		sum += path[i];
 	}
 
+	delete[] path;
 	return sum;
 }
 
-void BST::maximumWidth() {
+void BST::maximumWidth() { // ARRAY, STRING
 	if (isEmpty()) {
 		println("Maximum level is: ");
 	}
@@ -366,7 +351,7 @@ void BST::maximumWidth() {
 
 int BST::depth(int key) {
 	if ((key < this->value && !this->left) || (key > this->value && !this->right)) { // if key does not exist, depth is negative
-		return INT_MIN;
+		return INT16_MIN;
 	}
 
 	if (key == this->value) {
@@ -400,7 +385,7 @@ std::string BST::pathFromAtoBNoMessage(int A, int B) {
 		return res;
 	}
 
-	int commonAncestor = INT_MAX;
+	int commonAncestor = INT16_MAX;
 
 	for (int i = 0; i < min && rootToA[i] == rootToB[i]; ++i) { // while they have the same path from the root, continue
 		commonAncestor = rootToA[i];
@@ -467,7 +452,7 @@ bool BST::isLeaf(int key) {
 }
 
 bool BST::isEmpty() {
-	return (!this->right && !this->left && (this->value == INT_MAX));
+	return (!this->right && !this->left && (this->value == INT16_MAX));
 }
 
 int BST::size() {
@@ -492,22 +477,22 @@ int BST::size() {
 }
 
 int main() {
-	int a[] = { 10, 7, 20, 5, 9, 15, 21, 2, 12, 18, 24, 3, 19 };
+	int a[] = {10, 7, 20, 5, 15, 21, 2, 12, 18, 24, 3, 19};
+
 	
-	BST obj(a, 13);
-	obj.displayInorder();
+	
+	obj.isLevelFull(6);
+	obj.isLevelFull(7);
+	obj.deleteKey(1);
 	obj.findFullBTLevel();
-
-	for (int i = 0; i < 13; ++i) {
-		println(obj.depth(a[i]));
-	}
-
-	std::string s = "";
-	obj.inorder(s);
-	println(obj.depth(123));
-	obj.pathFromAtoB(2, 24);
-
-	println(obj.pathSum(24));
-	println(obj.pathSum(19));
-	
+	obj.lowestCommonAncestor(3, 9);
+	obj.lowestCommonAncestor(12, 15);
+	obj.maximumSumPath();
+	obj.maximumWidth();
+	obj.pathFromAtoB(2, 21);
+	obj.insertKey(8);
+	obj.insertKey(7);
+	obj.deleteKey(10);
+	obj.deleteKey(11);
+	obj.displayInorder();
 }
