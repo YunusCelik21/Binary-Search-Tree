@@ -168,7 +168,7 @@ void BST::deleteRoot() { // deleting root is a special case
 }
 
 
-int BST::inorderSuccessor() { // FIX
+int BST::inorderSuccessor() { 
 	if (!this->right) {
 		return this->value;
 	}
@@ -236,19 +236,24 @@ bool BST::isLevelFull(int level) {
 }
 
 void BST::lowestCommonAncestor(int A, int B) { // STRING
-	int* rootToA = rootToKey(A);
-	int* rootToB = rootToKey(B);
-	int min = std::min(depth(A), depth(B));
-	std::string commonAncestor = "";
-
-	for (int i = 0; i < min && rootToA[i] == rootToB[i]; ++i) { // while they have the same path from the root, continue
-		commonAncestor = std::to_string(rootToA[i]);
+	if (depth(A) < 0 || depth(B) < 0) {
+		println("error message"); // TODO:
 	}
+	int min = A < B ? A : B;
+	int max = A > B ? A : B;
 
-	println("Lowest common ancestor of " << A << " and " << B << " is: " << commonAncestor);
+	BST* commonAncestor = this;
+	while (!(commonAncestor->value <= max && commonAncestor->value >= min)) {
+		if (commonAncestor->value > max) {
+			commonAncestor = commonAncestor->left;
+		}
+		else if (commonAncestor->value < min) {
+			commonAncestor = commonAncestor->right;
+		}
+	}
+	
 
-	delete[] rootToA;
-	delete[] rootToB;
+	println("Lowest common ancestor of " << A << " and " << B << " is: " << commonAncestor->value);
 }
 
 void BST::maximumSumPath() { // ARRAY, STRING
@@ -496,12 +501,17 @@ int main() {
 
 	BST obj(a, 13);
 	
-	println(obj.nodesInLevel(1));
-	println(obj.nodesInLevel(2));
-	println(obj.nodesInLevel(3));
-	println(obj.nodesInLevel(4));
-	println(obj.nodesInLevel(5));
-	println(obj.nodesInLevel(6));
+	obj.lowestCommonAncestor(3, 9);
+	obj.lowestCommonAncestor(3, 7);
+	obj.lowestCommonAncestor(3, 21);
+	obj.lowestCommonAncestor(2, 10);
+	obj.lowestCommonAncestor(10, 15);
+	obj.lowestCommonAncestor(19, 12);
+	obj.lowestCommonAncestor(2, 19);
+	obj.lowestCommonAncestor(2, 24);
+	obj.lowestCommonAncestor(15, 21);
+	obj.lowestCommonAncestor(24, 19);
+
 	obj.displayInorder();
 	obj.findFullBTLevel();
 	obj.deleteKey(1);
@@ -514,6 +524,7 @@ int main() {
 	obj.insertKey(7);
 	obj.deleteKey(10);
 	obj.deleteKey(11);
+	obj.deleteKey(20);
 	obj.displayInorder();
 
 }

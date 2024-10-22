@@ -17,12 +17,12 @@ private:
 	void printInorder();
 	int depth(int key);
 	bool isLeaf(int key);
-	int inorderSuccessor();
 	void deleteRoot();
 	bool isEmpty();
 	int size();
 
 public:
+	int inorderSuccessor();
 	bool isLevelFull(int level);
 	int nodesInLevel(int level);
 	void printLevel(int level);
