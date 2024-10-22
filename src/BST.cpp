@@ -8,6 +8,7 @@
 */
 
 #include "BST.h"
+#include <algorithm>
 #define println(x) std::cout << x << std::endl
 #define print(x) std::cout << x
 
@@ -96,7 +97,7 @@ bool BST::deleteKeyNoMessage(int key) { // required to call delete recursively, 
 			return true;
 		}
 
-		this->left->deleteKeyNoMessage(key);
+		return this->left->deleteKeyNoMessage(key);
 	}
 	else if (key > this->value) {
 		if (this->right->value == key) {
@@ -104,7 +105,7 @@ bool BST::deleteKeyNoMessage(int key) { // required to call delete recursively, 
 			return true;
 		}
 
-		this->right->deleteKeyNoMessage(key);
+		return this->right->deleteKeyNoMessage(key);
 	}
 	else {
 		deleteRoot();
@@ -395,9 +396,12 @@ void BST::printLevel(int level) {
 			print(", " << this->value);
 		}
 	}
-
-	this->left->printLevel(level - 1);
-	this->right->printLevel(level - 1);
+	if (this->left) {
+		this->left->printLevel(level - 1);
+	}
+	if (this->right) {
+		this->right->printLevel(level - 1);
+	}
 }
 
 int BST::depth(int key) {
@@ -422,8 +426,10 @@ int BST::depth(int key) {
 
 void BST::pathFromAtoB(int A, int B) { 
 	int ancestor = lowestCommon(A, B);
+	print("Path from " << A << " to " << B << " is: ");
+
 	if (ancestor < 0) {
-		println("Error: One or both keys (" << A << ", " << B << ") do not exist in the tree.");
+		print("\n");
 		return;
 	}
 
@@ -438,20 +444,17 @@ void BST::pathFromAtoB(int A, int B) {
 		}
 	}
 
-	print("Path from " << A << " to " << B << " is: ");
-	if (!isEmpty()) {
-		pointer->printFromChild(A); // print from child to root (included)
+	pointer->printFromChild(A); // print from child to root (included)
 
-		if (pointer->value != B) { // print from root (excluded) to child
-			if (B < pointer->value) {
-				pointer->left->printToChild(B);
-			}
-			else {
-				pointer->right->printToChild(B);
-			}
+	if (pointer->value != B) { // print from root (excluded) to child
+		if (B < pointer->value) {
+			pointer->left->printToChild(B);
 		}
-		noComma = true;
+		else {
+			pointer->right->printToChild(B);
+		}
 	}
+	noComma = true;
  	print("\n");
 }
 
