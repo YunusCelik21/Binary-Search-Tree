@@ -185,6 +185,9 @@ int BST::smallest() {
 }
 
 void BST::displayInorder() {
+	if (isEmpty()) {
+		println("The tree is empty.");
+	}
 	
 	print("Inorder display is: ");
 	printInorder();
@@ -211,6 +214,11 @@ void BST::printInorder() {
 }
 
 void BST::findFullBTLevel() { 
+	if (isEmpty()) {
+		println("The tree is empty.");
+		return;
+	}
+
 	int level = 0;
 	while (isLevelFull(level)) {
 		++level;
@@ -267,7 +275,7 @@ int BST::lowestCommon(int A, int B) {
 
 void BST::maximumSumPath() { 
 	if (isEmpty()) {
-		println("The tree is empty"); 
+		println("The tree is empty."); 
 		return;
 	}
 
@@ -297,6 +305,8 @@ Path BST::pathSum() {
 	}
 	
 	Path biggest;
+	biggest.root = -1;
+	biggest.sum = -1;
 	if (this->left && this->right) {
 		Path left = this->left->pathSum();
 		Path right = this->right->pathSum();
@@ -325,6 +335,8 @@ Path BST::pathSum() {
 		biggest.sum = right.sum + this->value;
 		return biggest;
 	}
+
+	return biggest;
 }
 
 void BST::maximumWidth() {
@@ -419,8 +431,6 @@ void BST::pathFromAtoB(int A, int B) {
 		return;
 	}
 
-	int min = A < B ? A : B;
-	int max = A > B ? A : B;
 	BST* pointer = this;
 
 	while (pointer->value != ancestor) {
@@ -526,30 +536,4 @@ int BST::size() {
 	}
 
 	return res + 1;
-}
-
-int main() {
-	int a[] = {10, 7, 20, 5, 9, 15, 21, 2, 12, 18, 24, 3, 19};
-
-	BST obj(a, 13);
-
-	obj.findFullBTLevel();
-	obj.lowestCommonAncestor(3, 9);
-	obj.lowestCommonAncestor(12, 15);
-	obj.maximumSumPath();
-	obj.maximumWidth();
-	obj.pathFromAtoB(2, 21);
-	obj.insertKey(8);
-	obj.insertKey(7);
-	obj.deleteKey(10);
-	obj.deleteKey(11);
-	obj.displayInorder();
-	
-	obj.findFullBTLevel();
-	obj.pathFromAtoB(3, 19);
-	obj.pathFromAtoB(12, 20);
-	obj.pathFromAtoB(20, 12);
-	obj.pathFromAtoB(20, 20);
-	obj.deleteKey(20);
-	obj.displayInorder();
 }
