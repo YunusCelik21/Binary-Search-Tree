@@ -1,5 +1,8 @@
 #include "BST.h"
 #define println(x) std::cout << x << std::endl
+#define print(x) std::cout << x
+
+static bool noComma = true;
 
 BST::BST(int keys[], int size) { 
 		this->left = nullptr;
@@ -165,36 +168,45 @@ void BST::deleteRoot() { // deleting root is a special case
 }
 
 
-int BST::inorderSuccessor() {
+int BST::inorderSuccessor() { // FIX
 	if (!this->right) {
 		return this->value;
 	}
+	
+	return this->right->smallest();
+}
 
-	std::string s = "";
-	this->right->inorder(s);
-
-	std::string res = "";
-	for (int i = 0; i < s.size() && s[i] != ','; ++i) {
-		res += s[i];
+int BST::smallest() {
+	if (!this->left) {
+		return this->value;
 	}
 
-	return std::stoi(res); // stoi = string to int
+	return this->left->smallest();
 }
 
 void BST::displayInorder() {
-	std::string result = "";
-	inorder(result);
 	
-	println("Inorder display is: " << result.substr(0, result.size() - 2));
+	print("Inorder display is: ");
+	printInorder();
+	print("\n");
+	noComma = true;
 }
 
-void BST::inorder(std::string& result) {
+void BST::printInorder() {
 	if (this->left) {
-		this->left->inorder(result);
+		this->left->printInorder();
 	}
-		result += std::to_string(this->value) + ", ";
+
+	if (noComma) {
+		print(this->value);
+		noComma = false;
+	}
+	else {
+		print(", " << this->value);
+	}
+
 	if (this->right) {
-		this->right->inorder(result);
+		this->right->printInorder();
 	}
 }
 
@@ -244,7 +256,6 @@ void BST::maximumSumPath() { // ARRAY, STRING
 	int* keys = new int[size];
 	std::string res = "";
 	std::string s = "";
-	inorder(s);
 
 	// fill the keys array
 	for (int i = 0; i < size; ++i) {
@@ -274,7 +285,7 @@ void BST::maximumSumPath() { // ARRAY, STRING
 
 	delete[] keys;
 	println("Maximum sum path is: " << pathFromAtoBNoMessage(this->value, maxSumLeaf));
-
+	
 }
 
 int BST::pathSum(int key) { 
@@ -294,59 +305,63 @@ void BST::maximumWidth() { // ARRAY, STRING
 		println("Maximum level is: ");
 	}
 
-	int size = this->size();
-	int* width = new int[size + 1]; // width[i] contains the number of nodes at level i
+	int level = 0;
+	int maxLevel = 0;
+	int width = nodesInLevel(1);
+	int maxWidth = width;
 
-	int* keys = new int[size]; // contains the keys
-
-	std::string s = ""; 
-	inorder(s);
-	
-	// fill the keys array
-	for (int i = 0; i < size; ++i) {
-		std::string num = "";
-		
-		int j;
-		for (j = 0; j < s.size() && s[j] != ','; ++j) {
-			num += s[j];
-		}
-
-		keys[i] = std::stoi(num);
-		s = s.substr(j + 2, s.size() - (j + 2));
-	}
-
-	// initialize the width array
-	for (int i = 0; i < size + 1; ++i) {
-		width[i] = 0;
-	}
-	
-	// fill the width array
-	for (int i = 0; i < size; ++i) { 
-		int level = depth(keys[i]);
-		width[level]++;
-	}
-
-	// find the maximum level
-	int maxLevel = 1;
-	for (int i = 1; i < size + 1; ++i) {
-		if (width[i] > width[maxLevel]) {
-			maxLevel = i;
+	while (width > 0) {
+		++level;
+		width = nodesInLevel(level);
+		if (width > maxWidth) {
+			maxWidth = width;
+			maxLevel = level;
 		}
 	}
 
-	// list the nodes in the max level
-	std::string maxLevelKeys = "";
-	for (int i = 0; i < size; ++i) {
-		if (depth(keys[i]) == maxLevel) {
-			maxLevelKeys += std::to_string(keys[i]) + ", ";
+	print("Maximum level is: ");
+	printLevel(maxLevel);
+	print("\n");
+	noComma = true; // next method's message should start with no comma
+}
+
+int BST::nodesInLevel(int level) {
+	if (level == 0) {
+		return 0;
+	}
+
+	if (level == 1) {
+		return !isEmpty(); // 1 if not empty, 0 if empty
+	}
+
+	int sum = 0;
+	if (this->left) {
+		sum += this->left->nodesInLevel(level - 1);
+	}
+	if (this->right) {
+		sum += this->right->nodesInLevel(level - 1);
+	}
+
+	return sum;
+}
+
+void BST::printLevel(int level) {
+	if (level < 1) {
+		return;
+	}
+
+	if (level == 1) {
+		if (noComma) { // if the first element, no comma
+			print(this->value);
+			noComma = false;
+		}
+		else {
+			print(", " << this->value);
 		}
 	}
 
-	delete[] width;
-	delete[] keys;
-
-	maxLevelKeys = maxLevelKeys.substr(0, maxLevelKeys.size() - 2);
-	println("Maximum level is: " << maxLevelKeys);
+	this->left->printLevel(level - 1);
+	this->right->printLevel(level - 1);
 }
 
 int BST::depth(int key) {
@@ -477,17 +492,22 @@ int BST::size() {
 }
 
 int main() {
-	int a[] = {10, 7, 20, 5, 15, 21, 2, 12, 18, 24, 3, 19};
+	int a[] = {10, 7, 20, 5, 9, 15, 21, 2, 12, 18, 24, 3, 19};
 
+	BST obj(a, 13);
 	
-	
-	obj.isLevelFull(6);
-	obj.isLevelFull(7);
+	println(obj.nodesInLevel(1));
+	println(obj.nodesInLevel(2));
+	println(obj.nodesInLevel(3));
+	println(obj.nodesInLevel(4));
+	println(obj.nodesInLevel(5));
+	println(obj.nodesInLevel(6));
+	obj.displayInorder();
+	obj.findFullBTLevel();
 	obj.deleteKey(1);
 	obj.findFullBTLevel();
 	obj.lowestCommonAncestor(3, 9);
 	obj.lowestCommonAncestor(12, 15);
-	obj.maximumSumPath();
 	obj.maximumWidth();
 	obj.pathFromAtoB(2, 21);
 	obj.insertKey(8);
@@ -495,4 +515,5 @@ int main() {
 	obj.deleteKey(10);
 	obj.deleteKey(11);
 	obj.displayInorder();
+
 }
