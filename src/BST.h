@@ -1,7 +1,11 @@
 #ifndef BST_H
 #define BST_H
 #include <iostream>
-#include <string>
+
+struct Path {
+	int root;
+	int sum;
+};
 
 class BST {
 private:
@@ -11,10 +15,8 @@ private:
 
 	bool insertKeyNoMessage(int key);
 	bool deleteKeyNoMessage(int key);
-	std::string pathFromAtoBNoMessage(int A, int B);
 	int lowestCommon(int A, int B);
-	int pathSum(int key);
-	int* rootToKey(int key);
+	Path pathSum();
 	void printInorder();
 	bool isLeaf(int key);
 	void deleteRoot();
@@ -47,4 +49,5 @@ public:
 
 	friend void deletePointedNode(BST*& node);
 };
+
 #endif

@@ -210,7 +210,7 @@ void BST::printInorder() {
 	}
 }
 
-void BST::findFullBTLevel() { // CANNOT USE ARRAY
+void BST::findFullBTLevel() { 
 	int level = 0;
 	while (isLevelFull(level)) {
 		++level;
@@ -238,7 +238,8 @@ bool BST::isLevelFull(int level) {
 void BST::lowestCommonAncestor(int A, int B) {
 	int res = lowestCommon(A, B);
 	if (res < 0) {
-		println("error message"); // TODO:
+		println("Error: One or both keys (" << A << ", " << B << ") do not exist in the tree."); 
+		return;
 	}
 	
 	println("Lowest common ancestor of " << A << " and " << B << " is: " << res);
@@ -264,58 +265,72 @@ int BST::lowestCommon(int A, int B) {
 	return commonAncestor->value;
 }
 
-void BST::maximumSumPath() { // ARRAY, STRING
-	int size = this->size();
-	int* keys = new int[size];
-	std::string res = "";
-	std::string s = "";
-
-	// fill the keys array
-	for (int i = 0; i < size; ++i) {
-		std::string num = "";
-
-		int j;
-		for (j = 0; j < s.size() && s[j] != ','; ++j) {
-			num += s[j];
-		}
-
-		keys[i] = std::stoi(num);
-		s = s.substr(j + 2, s.size() - (j + 2));
+void BST::maximumSumPath() { 
+	if (isEmpty()) {
+		println("The tree is empty"); 
+		return;
 	}
 
-	int maxSum = INT16_MIN;
-	int maxSumLeaf = INT16_MIN;
-	for (int i = 0; i < size; ++i) {
-		if (isLeaf(keys[i])) {
-			int sum = pathSum(keys[i]);
-
-			if (sum > maxSum) {
-				maxSum = sum;
-				maxSumLeaf = keys[i];
-			}
-		}
-	}
-
-	delete[] keys;
-	println("Maximum sum path is: " << pathFromAtoBNoMessage(this->value, maxSumLeaf));
+	Path max = this->pathSum();
 	
+	print("Maximum sum path is: ");
+	print(this->value); // print the root
+
+	// print the rest
+	if (this->value != max.root) {
+		if (max.root < this->value) {
+			this->left->printToChild(max.root);
+		}
+		else {
+			this->right->printToChild(max.root);
+		}
+	}
+	print("\n");
 }
 
-int BST::pathSum(int key) { // PROBLEM
-	int* path = rootToKey(key);
-	int sum = 0;
+Path BST::pathSum() {
+	if ((!this->left && !this->right)) {
+		Path p;
+		p.root = this->value;
+		p.sum = this->value;
+		return p;
+	}
+	
+	Path biggest;
+	if (this->left && this->right) {
+		Path left = this->left->pathSum();
+		Path right = this->right->pathSum();
 
-	for (int i = 0; i < depth(key); ++i) {
-		sum += path[i];
+		if (left.sum > right.sum) { 
+			biggest.root = left.root; // root of the bigger path is coming from the left
+			biggest.sum = left.sum + this->value;
+		}
+		else {
+			biggest.root = right.root;
+			biggest.sum = right.sum + this->value;
+		}
+		return biggest;
 	}
 
-	delete[] path;
-	return sum;
+	if (this->left) {
+		Path left = this->left->pathSum();
+		biggest.root = left.root; 
+		biggest.sum = left.sum + this->value;
+		return biggest;
+	}
+
+	if (this->right) { // only possibility but writing the if for clarity
+		Path right = this->right->pathSum();
+		biggest.root = right.root;
+		biggest.sum = right.sum + this->value;
+		return biggest;
+	}
 }
 
 void BST::maximumWidth() {
 	if (isEmpty()) {
-		println("Maximum level is: ");
+		println("The tree is empty");
+		return;
 	}
 
 	int level = 0;
@@ -400,7 +415,8 @@ int BST::depth(int key) {
 void BST::pathFromAtoB(int A, int B) { 
 	int ancestor = lowestCommon(A, B);
 	if (ancestor < 0) {
-		println("Error"); // TODO:
+		println("Error: One or both keys (" << A << ", " << B << ") do not exist in the tree.");
+		return;
 	}
 
 	int min = A < B ? A : B;
@@ -417,8 +433,9 @@ void BST::pathFromAtoB(int A, int B) {
 	}
 
 	print("Path from " << A << " to " << B << " is: ");
-	pointer->printFromChild(A);
-	if (pointer->value != B) {
+	pointer->printFromChild(A); // print from child to root (included)
+
+	if (pointer->value != B) { // print from root (excluded) to child
 		if (B < pointer->value) {
 			pointer->left->printToChild(B);
 		}
@@ -426,8 +443,8 @@ void BST::pathFromAtoB(int A, int B) {
 			pointer->right->printToChild(B);
 		}
 	}
+ 	print("\n");
 	noComma = true;
-	print("\n");
 }
 
 void BST::printFromChild(int A) {
@@ -465,63 +482,6 @@ void BST::printToChild(int A) {
 	else {
 		this->right->printToChild(A);
 	}
-}
-
-std::string BST::pathFromAtoBNoMessage(int A, int B) { // PROBLEM
-	int* rootToA = rootToKey(A);
-	int* rootToB = rootToKey(B);
-	int min = std::min(depth(A), depth(B));
-	std::string res = "";
-
-	if (isEmpty() || min < 0) { // if there is no path
-		return res;
-	}
-
-	int commonAncestor = INT16_MAX;
-
-	for (int i = 0; i < min && rootToA[i] == rootToB[i]; ++i) { // while they have the same path from the root, continue
-		commonAncestor = rootToA[i];
-	}
-
-	// path from A to common ancestor
-	int i;
-	for (i = depth(A) - 1; i >= 0 && rootToA[i] != commonAncestor; --i) {
-		res += std::to_string(rootToA[i]) + ", ";
-	}
-
-	// path from common ancestor to B
-	for (i; i < depth(B); ++i) {
-		res += std::to_string(rootToB[i]) + ", ";
-	}
-
-	res = res.substr(0, res.size() - 2);
-
-	delete[] rootToA;
-	delete[] rootToB;
-
-	return res;
-}
-
-int* BST::rootToKey(int key) { // PROBLEM
-	int length = depth(key);
-	if (length < 0) {
-		return nullptr;
-	}
-
-	int* path = new int[length];
-	BST* pointer = this;
-
-	for (int i = 0; i < length; ++i) {
-		path[i] = pointer->value;
-		
-		if (key < pointer->value) {
-			pointer = pointer->left;
-		}
-		else if (key > pointer->value) {
-			pointer = pointer->right;
-		}
-	}
-	return path;
 }
 
 bool BST::isLeaf(int key) {
@@ -572,28 +532,24 @@ int main() {
 	int a[] = {10, 7, 20, 5, 9, 15, 21, 2, 12, 18, 24, 3, 19};
 
 	BST obj(a, 13);
-	
-	obj.printFromChild(3);
-	println("------");
-	obj.printToChild(19);
-	println("------");
-	obj.displayInorder();
-	obj.findFullBTLevel();
-	obj.deleteKey(1);
+
 	obj.findFullBTLevel();
 	obj.lowestCommonAncestor(3, 9);
 	obj.lowestCommonAncestor(12, 15);
+	obj.maximumSumPath();
 	obj.maximumWidth();
 	obj.pathFromAtoB(2, 21);
-	obj.pathFromAtoB(3, 19);
-	obj.pathFromAtoB(12, 20);
-	obj.pathFromAtoB(20, 12);
-	obj.pathFromAtoB(20, 20);
 	obj.insertKey(8);
 	obj.insertKey(7);
 	obj.deleteKey(10);
 	obj.deleteKey(11);
+	obj.displayInorder();
+	
+	obj.findFullBTLevel();
+	obj.pathFromAtoB(3, 19);
+	obj.pathFromAtoB(12, 20);
+	obj.pathFromAtoB(20, 12);
+	obj.pathFromAtoB(20, 20);
 	obj.deleteKey(20);
 	obj.displayInorder();
-
 }
