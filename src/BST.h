@@ -1,8 +1,18 @@
+/**
+* Title: Binary Search Tree Header File
+* Author : Yunus Celik
+* ID: 22203347
+* Section : 1
+* Homework : 1
+* Description : This header file defines the BST class, Path class, and deletePointedNode friend function
+*/
+
 #ifndef BST_H
 #define BST_H
 #include <iostream>
 
-struct Path {
+class Path {
+public:
 	int root;
 	int sum;
 };
@@ -46,5 +56,4 @@ public:
 
 	friend void deletePointedNode(BST*& node);
 };
-
 #endif

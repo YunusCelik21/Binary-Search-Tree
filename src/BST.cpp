@@ -1,8 +1,17 @@
+/**
+* Title: Binary Search Tree 
+* Author : Yunus Celik
+* ID: 22203347
+* Section : 1
+* Homework : 1
+* Description : This file contians the BST class, and deletePointedNode friend function implementation
+*/
+
 #include "BST.h"
 #define println(x) std::cout << x << std::endl
 #define print(x) std::cout << x
 
-static bool noComma = true;
+static bool noComma = true; // if true, first element to be printed will not have a comma at its left
 
 BST::BST(int keys[], int size) { 
 		this->left = nullptr;
@@ -41,7 +50,7 @@ void BST::insertKey(int key) {
 	}
 }
 
-bool BST::insertKeyNoMessage(int key) {
+bool BST::insertKeyNoMessage(int key) { // required to insert recursively, otherwise will print twice
 	if (isEmpty()) {
 		this->value = key;
 		return true;
@@ -53,8 +62,7 @@ bool BST::insertKeyNoMessage(int key) {
 		}
 
 		this->left = new BST(key);
-		return true;
-		
+		return true;	
 	}
 	else if (key > this->value) {
 		if (this->right) {
@@ -63,11 +71,9 @@ bool BST::insertKeyNoMessage(int key) {
 
 		this->right = new BST(key);
 		return true;
-		
 	}
 
-	return false;
-	
+	return false;	
 }
 
 void BST::deleteKey(int key) {
@@ -79,7 +85,7 @@ void BST::deleteKey(int key) {
 	}
 }
 
-bool BST::deleteKeyNoMessage(int key) {
+bool BST::deleteKeyNoMessage(int key) { // required to call delete recursively, otherwise will print twice
 	if ((key < this->value && !this->left) || (key > this->value && !this->right)) {
 		return false;
 	}
@@ -108,7 +114,7 @@ bool BST::deleteKeyNoMessage(int key) {
 	return false;
 }
 
-void deletePointedNode(BST*& node) {
+void deletePointedNode(BST*& node) { // deletes the pointed node and updates the original pointer to that node
 	if (!node->right && !node->left) {
 		delete node;
 		node = nullptr;
@@ -130,9 +136,9 @@ void deletePointedNode(BST*& node) {
 	}
 }
 
-void BST::deleteRoot() { // deleting root is a special case
+void BST::deleteRoot() { // deleting the root is a special case
 	if (!this->left && !this->right) {
-		this->value = INT16_MIN; // tree is empty now
+		this->value = INT16_MAX; // tree is empty now
 	}
 	else if (!this->left) {
 		BST* del = this->right;
@@ -176,7 +182,7 @@ int BST::inorderSuccessor() {
 	return this->right->smallest();
 }
 
-int BST::smallest() {
+int BST::smallest() { // returns the smallest key in the tree
 	if (!this->left) {
 		return this->value;
 	}
@@ -185,14 +191,13 @@ int BST::smallest() {
 }
 
 void BST::displayInorder() {
-	if (isEmpty()) {
-		println("The tree is empty.");
-	}
-	
 	print("Inorder display is: ");
-	printInorder();
+
+	if (!isEmpty()) {
+		printInorder();
+		noComma = true; // next method's message should start with no comma
+	}
 	print("\n");
-	noComma = true;
 }
 
 void BST::printInorder() {
@@ -214,11 +219,6 @@ void BST::printInorder() {
 }
 
 void BST::findFullBTLevel() { 
-	if (isEmpty()) {
-		println("The tree is empty.");
-		return;
-	}
-
 	int level = 0;
 	while (isLevelFull(level)) {
 		++level;
@@ -245,15 +245,15 @@ bool BST::isLevelFull(int level) {
 
 void BST::lowestCommonAncestor(int A, int B) {
 	int res = lowestCommon(A, B);
-	if (res < 0) {
-		println("Error: One or both keys (" << A << ", " << B << ") do not exist in the tree."); 
-		return;
+	print("Lowest common ancestor of " << A << " and " << B << " is: ");
+
+	if (res > 0) {
+		print(res);
 	}
-	
-	println("Lowest common ancestor of " << A << " and " << B << " is: " << res);
+	print("\n");
 }
 
-int BST::lowestCommon(int A, int B) {
+int BST::lowestCommon(int A, int B) { // required in pathFromAtoB, so implemented in another method
 	if (depth(A) < 0 || depth(B) < 0) {
 		return -1; // no lowest common
 	}
@@ -261,7 +261,7 @@ int BST::lowestCommon(int A, int B) {
 	int max = A > B ? A : B;
 
 	BST* commonAncestor = this;
-	while (!(commonAncestor->value <= max && commonAncestor->value >= min)) {
+	while (!(commonAncestor->value <= max && commonAncestor->value >= min)) { // while common ancestor is not in between
 		if (commonAncestor->value > max) {
 			commonAncestor = commonAncestor->left;
 		}
@@ -274,23 +274,21 @@ int BST::lowestCommon(int A, int B) {
 }
 
 void BST::maximumSumPath() { 
-	if (isEmpty()) {
-		println("The tree is empty."); 
-		return;
-	}
 
 	Path max = this->pathSum();
 	
 	print("Maximum sum path is: ");
-	print(this->value); // print the root
+	if (!isEmpty()) {
+		print(this->value); // print the root
 
-	// print the rest
-	if (this->value != max.root) {
-		if (max.root < this->value) {
-			this->left->printToChild(max.root);
-		}
-		else {
-			this->right->printToChild(max.root);
+		// print the rest
+		if (this->value != max.root) {
+			if (max.root < this->value) {
+				this->left->printToChild(max.root);
+			}
+			else {
+				this->right->printToChild(max.root);
+			}
 		}
 	}
 	print("\n");
@@ -340,10 +338,6 @@ Path BST::pathSum() {
 }
 
 void BST::maximumWidth() {
-	if (isEmpty()) {
-		println("The tree is empty");
-		return;
-	}
 
 	int level = 0;
 	int maxLevel = 0;
@@ -360,9 +354,11 @@ void BST::maximumWidth() {
 	}
 
 	print("Maximum level is: ");
-	printLevel(maxLevel);
+	if (!isEmpty()) {
+		printLevel(maxLevel);
+		noComma = true;
+	}
 	print("\n");
-	noComma = true; // next method's message should start with no comma
 }
 
 int BST::nodesInLevel(int level) {
@@ -443,18 +439,20 @@ void BST::pathFromAtoB(int A, int B) {
 	}
 
 	print("Path from " << A << " to " << B << " is: ");
-	pointer->printFromChild(A); // print from child to root (included)
+	if (!isEmpty()) {
+		pointer->printFromChild(A); // print from child to root (included)
 
-	if (pointer->value != B) { // print from root (excluded) to child
-		if (B < pointer->value) {
-			pointer->left->printToChild(B);
+		if (pointer->value != B) { // print from root (excluded) to child
+			if (B < pointer->value) {
+				pointer->left->printToChild(B);
+			}
+			else {
+				pointer->right->printToChild(B);
+			}
 		}
-		else {
-			pointer->right->printToChild(B);
-		}
+		noComma = true;
 	}
  	print("\n");
-	noComma = true;
 }
 
 void BST::printFromChild(int A) {
