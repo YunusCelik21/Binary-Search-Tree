@@ -235,9 +235,18 @@ bool BST::isLevelFull(int level) {
 	return (this->left && this->right) && this->left->isLevelFull(level - 1) && this->right->isLevelFull(level - 1);
 }
 
-void BST::lowestCommonAncestor(int A, int B) { // STRING
-	if (depth(A) < 0 || depth(B) < 0) {
+void BST::lowestCommonAncestor(int A, int B) {
+	int res = lowestCommon(A, B);
+	if (res < 0) {
 		println("error message"); // TODO:
+	}
+	
+	println("Lowest common ancestor of " << A << " and " << B << " is: " << res);
+}
+
+int BST::lowestCommon(int A, int B) {
+	if (depth(A) < 0 || depth(B) < 0) {
+		return -1; // no lowest common
 	}
 	int min = A < B ? A : B;
 	int max = A > B ? A : B;
@@ -251,9 +260,8 @@ void BST::lowestCommonAncestor(int A, int B) { // STRING
 			commonAncestor = commonAncestor->right;
 		}
 	}
-	
 
-	println("Lowest common ancestor of " << A << " and " << B << " is: " << commonAncestor->value);
+	return commonAncestor->value;
 }
 
 void BST::maximumSumPath() { // ARRAY, STRING
@@ -293,7 +301,7 @@ void BST::maximumSumPath() { // ARRAY, STRING
 	
 }
 
-int BST::pathSum(int key) { 
+int BST::pathSum(int key) { // PROBLEM
 	int* path = rootToKey(key);
 	int sum = 0;
 
@@ -305,7 +313,7 @@ int BST::pathSum(int key) {
 	return sum;
 }
 
-void BST::maximumWidth() { // ARRAY, STRING
+void BST::maximumWidth() {
 	if (isEmpty()) {
 		println("Maximum level is: ");
 	}
@@ -389,13 +397,77 @@ int BST::depth(int key) {
 	return 0;
 }
 
-void BST::pathFromAtoB(int A, int B) {
-	std::string res = pathFromAtoBNoMessage(A, B);
+void BST::pathFromAtoB(int A, int B) { 
+	int ancestor = lowestCommon(A, B);
+	if (ancestor < 0) {
+		println("Error"); // TODO:
+	}
 
-	println("Path from " << A << " to " << B << " is: " << res);
-} 
+	int min = A < B ? A : B;
+	int max = A > B ? A : B;
+	BST* pointer = this;
 
-std::string BST::pathFromAtoBNoMessage(int A, int B) {
+	while (pointer->value != ancestor) {
+		if (ancestor < pointer->value) {
+			pointer = pointer->left;
+		}
+		else if (ancestor > pointer->value) {
+			pointer = pointer->right;
+		}
+	}
+
+	print("Path from " << A << " to " << B << " is: ");
+	pointer->printFromChild(A);
+	if (pointer->value != B) {
+		if (B < pointer->value) {
+			pointer->left->printToChild(B);
+		}
+		else {
+			pointer->right->printToChild(B);
+		}
+	}
+	noComma = true;
+	print("\n");
+}
+
+void BST::printFromChild(int A) {
+	if (this->value == A) {
+		if (noComma) {
+			print(this->value);
+			noComma = false;
+		}
+		else {
+			print(", " << this->value);
+		}
+		return;
+	}
+
+	if (A < this->value) {
+		this->left->printFromChild(A);
+	}
+	else {
+		this->right->printFromChild(A);
+	}
+
+	print(", " << this->value);
+}
+
+void BST::printToChild(int A) {
+	if (this->value == A) {
+		print(", " << this->value);
+		return;
+	}
+
+	print(", " << this->value);
+	if (A < this->value) {
+		this->left->printToChild(A);
+	}
+	else {
+		this->right->printToChild(A);
+	}
+}
+
+std::string BST::pathFromAtoBNoMessage(int A, int B) { // PROBLEM
 	int* rootToA = rootToKey(A);
 	int* rootToB = rootToKey(B);
 	int min = std::min(depth(A), depth(B));
@@ -430,7 +502,7 @@ std::string BST::pathFromAtoBNoMessage(int A, int B) {
 	return res;
 }
 
-int* BST::rootToKey(int key) { // does not delete the path, caller should do it
+int* BST::rootToKey(int key) { // PROBLEM
 	int length = depth(key);
 	if (length < 0) {
 		return nullptr;
@@ -501,17 +573,10 @@ int main() {
 
 	BST obj(a, 13);
 	
-	obj.lowestCommonAncestor(3, 9);
-	obj.lowestCommonAncestor(3, 7);
-	obj.lowestCommonAncestor(3, 21);
-	obj.lowestCommonAncestor(2, 10);
-	obj.lowestCommonAncestor(10, 15);
-	obj.lowestCommonAncestor(19, 12);
-	obj.lowestCommonAncestor(2, 19);
-	obj.lowestCommonAncestor(2, 24);
-	obj.lowestCommonAncestor(15, 21);
-	obj.lowestCommonAncestor(24, 19);
-
+	obj.printFromChild(3);
+	println("------");
+	obj.printToChild(19);
+	println("------");
 	obj.displayInorder();
 	obj.findFullBTLevel();
 	obj.deleteKey(1);
@@ -520,6 +585,10 @@ int main() {
 	obj.lowestCommonAncestor(12, 15);
 	obj.maximumWidth();
 	obj.pathFromAtoB(2, 21);
+	obj.pathFromAtoB(3, 19);
+	obj.pathFromAtoB(12, 20);
+	obj.pathFromAtoB(20, 12);
+	obj.pathFromAtoB(20, 20);
 	obj.insertKey(8);
 	obj.insertKey(7);
 	obj.deleteKey(10);

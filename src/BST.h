@@ -12,21 +12,25 @@ private:
 	bool insertKeyNoMessage(int key);
 	bool deleteKeyNoMessage(int key);
 	std::string pathFromAtoBNoMessage(int A, int B);
+	int lowestCommon(int A, int B);
 	int pathSum(int key);
 	int* rootToKey(int key);
 	void printInorder();
-	int depth(int key);
 	bool isLeaf(int key);
 	void deleteRoot();
 	bool isEmpty();
 	int size();
 
 public:
+	int depth(int key);
 	int inorderSuccessor();
 	bool isLevelFull(int level);
 	int nodesInLevel(int level);
 	void printLevel(int level);
 	int smallest();
+	void printFromChild(int A);
+	void printToChild(int A);
+
 
 	BST(int keys[], int size);
 	BST(int value);
@@ -39,6 +43,7 @@ public:
 	void maximumSumPath();
 	void maximumWidth();
 	void pathFromAtoB(int A, int B);
+
 
 	friend void deletePointedNode(BST*& node);
 };
